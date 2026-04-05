@@ -21,7 +21,10 @@ export function AppProvider({ children }) {
   const [liveStatus, setLiveStatus]   = useState('Connecting…');
   const isMounted = useRef(true);
 
-  useEffect(() => { return () => { isMounted.current = false; }; }, []);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
 
   // Apply theme
   useEffect(() => {
