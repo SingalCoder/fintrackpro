@@ -56,17 +56,25 @@ export function AppProvider({ children }) {
     } catch (e) { console.error('fetchAllData error', e); }
   }, []);
 
-  // Seed demo data for new users
+  // Seed demo data for new users — single bulk request
   const seedDemoData = useCallback(async () => {
     try {
-      // Run sequentially to avoid rate-limiting or MongoDB connection timeouts on Render free tier
-      for (const t of DEMO_TRANSACTIONS()) { await API.post('/transactions', t).catch(() => {}); }
-      for (const p of DEMO_PORTFOLIO) { await API.post('/portfolio', p).catch(() => {}); }
-      for (const g of DEMO_GOALS) { await API.post('/goals', g).catch(() => {}); }
-      for (const b of DEMO_BUDGETS) { await API.post('/budgets', b).catch(() => {}); }
+      const res = await API.post('/seed', {
+        transactions: DEMO_TRANSACTIONS(),
+        portfolio: DEMO_PORTFOLIO,
+        goals: DEMO_GOALS,
+        budgets: DEMO_BUDGETS,
+      });
+      // Use response data directly — no second fetch needed
+      if (res.data) {
+        if (res.data.transactions) setTransactions(res.data.transactions);
+        if (res.data.portfolio) setPortfolio(res.data.portfolio);
+        if (res.data.goals) setGoals(res.data.goals);
+        if (res.data.budgets) setBudgets(res.data.budgets);
+      }
     } catch (e) {
       console.error('seedDemoData error', e);
-    } finally {
+      // Fallback: fetch whatever was saved
       await fetchAllData();
     }
   }, [fetchAllData]);
