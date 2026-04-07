@@ -12,14 +12,21 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 
 // Routes
-app.use('/api/auth',         require('./routes/auth'));
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/transactions', require('./routes/transactions'));
-app.use('/api/portfolio',    require('./routes/portfolio'));
-app.use('/api/budgets',      require('./routes/budgets'));
-app.use('/api/goals',        require('./routes/goals'));
-app.use('/api/prices',       require('./routes/prices'));
+app.use('/api/portfolio', require('./routes/portfolio'));
+app.use('/api/budgets', require('./routes/budgets'));
+app.use('/api/goals', require('./routes/goals'));
+app.use('/api/prices', require('./routes/prices'));
 
 app.get('/', (req, res) => res.json({ message: 'FinTrack Pro API is running ✓' }));
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Global error handler
 app.use((err, req, res, next) => {
