@@ -59,14 +59,16 @@ export function AppProvider({ children }) {
   // Seed demo data for new users
   const seedDemoData = useCallback(async () => {
     try {
-      await Promise.all([
-        ...DEMO_TRANSACTIONS().map(t => API.post('/transactions', t)),
-        ...DEMO_PORTFOLIO.map(p => API.post('/portfolio', p)),
-        ...DEMO_GOALS.map(g => API.post('/goals', g)),
-        ...DEMO_BUDGETS.map(b => API.post('/budgets', b)),
-      ]);
+      // Run sequentially to avoid rate-limiting or MongoDB connection timeouts on Render free tier
+      for (const t of DEMO_TRANSACTIONS()) { await API.post('/transactions', t).catch(() => {}); }
+      for (const p of DEMO_PORTFOLIO) { await API.post('/portfolio', p).catch(() => {}); }
+      for (const g of DEMO_GOALS) { await API.post('/goals', g).catch(() => {}); }
+      for (const b of DEMO_BUDGETS) { await API.post('/budgets', b).catch(() => {}); }
+    } catch (e) {
+      console.error('seedDemoData error', e);
+    } finally {
       await fetchAllData();
-    } catch (e) { console.error('seedDemoData error', e); }
+    }
   }, [fetchAllData]);
 
   // Login
