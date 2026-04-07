@@ -77,9 +77,9 @@ export function AppProvider({ children }) {
     const { token: t, ...userData } = res.data;
     localStorage.setItem('ftpro_token', t);
     setToken(t);
-    setUser(userData);
+    await fetchAllData(); // Fetch data first
+    setUser(userData);    // THEN update UI
     setCurrencyState(userData.currency || 'INR');
-    await fetchAllData();
   }, [fetchAllData]);
 
   // Register
@@ -88,9 +88,9 @@ export function AppProvider({ children }) {
     const { token: t, ...userData } = res.data;
     localStorage.setItem('ftpro_token', t);
     setToken(t);
-    setUser(userData);
+    await seedDemoData(); // Wait for seeding + fetching
+    setUser(userData);    // THEN let them into the dashboard
     setCurrencyState(curr || 'INR');
-    await seedDemoData();
     toast(`Welcome to FinTrack Pro, ${name.split(' ')[0]}! 🎉`, 'success');
   }, [seedDemoData, toast]);
 
