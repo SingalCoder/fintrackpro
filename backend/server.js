@@ -8,7 +8,12 @@ connectDB();
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+// Updated CORS to allow Vercel frontend
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://fintrackpro-phi.vercel.app'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Routes
