@@ -56,27 +56,41 @@ export function AppProvider({ children }) {
     } catch (e) { console.error('fetchAllData error', e); }
   }, []);
 
-  // Seed demo data for new users — single bulk request
+  // Seed demo data for new users — try bulk, fallback to parallel
   const seedDemoData = useCallback(async () => {
     try {
+      // Try bulk seed endpoint first (single request)
       const res = await API.post('/seed', {
         transactions: DEMO_TRANSACTIONS(),
         portfolio: DEMO_PORTFOLIO,
         goals: DEMO_GOALS,
         budgets: DEMO_BUDGETS,
       });
-      // Use response data directly — no second fetch needed
+      // Use response data directly
       if (res.data) {
         if (res.data.transactions) setTransactions(res.data.transactions);
         if (res.data.portfolio) setPortfolio(res.data.portfolio);
         if (res.data.goals) setGoals(res.data.goals);
         if (res.data.budgets) setBudgets(res.data.budgets);
       }
+      return; // Success — done
     } catch (e) {
-      console.error('seedDemoData error', e);
-      // Fallback: fetch whatever was saved
-      await fetchAllData();
+      console.warn('Bulk seed failed, falling back to parallel requests', e);
     }
+
+    // Fallback: fire all POSTs in parallel then fetch
+    try {
+      await Promise.allSettled([
+        ...DEMO_TRANSACTIONS().map(t => API.post('/transactions', t)),
+        ...DEMO_PORTFOLIO.map(p => API.post('/portfolio', p)),
+        ...DEMO_GOALS.map(g => API.post('/goals', g)),
+        ...DEMO_BUDGETS.map(b => API.post('/budgets', b)),
+      ]);
+    } catch (e) {
+      console.error('seedDemoData fallback error', e);
+    }
+    // Always fetch whatever was saved
+    await fetchAllData();
   }, [fetchAllData]);
 
   // Login
@@ -117,7 +131,7 @@ export function AppProvider({ children }) {
     setLoading(true);
     const timeout = setTimeout(() => {
       if (isMounted.current) { setLoading(false); localStorage.removeItem('ftpro_token'); setToken(null); }
-    }, 8000);
+    }, 30000);
     API.get('/auth/me')
       .then(res => { setUser(res.data); setCurrencyState(res.data.currency || 'INR'); return fetchAllData(); })
       .catch(() => { localStorage.removeItem('ftpro_token'); setToken(null); })
