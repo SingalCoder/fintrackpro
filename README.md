@@ -6,6 +6,7 @@ A full-stack personal finance dashboard built with **React.js**, **Node.js + Exp
 
 ## 🌐 Live Demo & Deployment
 
+- **Live Demo:** https://fintrack-pro-frontend-phi.vercel.app/
 - **Frontend:** Deployed on [Vercel](https://vercel.com/)
 - **Backend:** Deployed on [Render](https://render.com/)
 - **Activity:** [UptimeRobot](https://uptimerobot.com/) is used to regularly ping the backend to keep it awake and prevent cold starts.
