@@ -23,6 +23,7 @@ app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/budgets', require('./routes/budgets'));
 app.use('/api/goals', require('./routes/goals'));
 app.use('/api/prices', require('./routes/prices'));
+app.use('/api/seed', require('./routes/seed'));
 
 app.get('/', (req, res) => res.json({ message: 'FinTrack Pro API is running ✓' }));
 
